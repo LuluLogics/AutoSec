@@ -17,7 +17,7 @@
   --white-color: #fff;
   /* --body-color: hsl(219, 4%, 4%); */
   
-  --body-color: hsl(283, 89%, 7%);
+  --body-color: hsl(246, 89%, 7%);
   --container-color: hsl(219, 4%, 7%);
 
   /*========== My Custom Font and typography ==========*/
@@ -593,10 +593,13 @@ transform: scale(1.2);
   position: relative;
   z-index: 10;
 }
-.features__img{
-  width: 150px;
+.features__img {
+  width: 100%;
+  max-width: 300px;   /* cap max size */
+  height: auto;
   justify-self: center;
 }
+
 .features__card{
   width: 112px;
   background-color: hsla(0, 0%, 100%, .1);
@@ -794,6 +797,7 @@ transform: scale(1.2);
 .offer__img{
   position: relative;
 }
+
 .offer__data{
   text-align: center;
 }
@@ -1065,6 +1069,35 @@ transform: scale(1.2);
     z-index: var(--z-fixed);
   }
 
+/* Social icons */
+.footer__social-icon-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* makes icons white if needed */
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.footer__social-link:hover .footer__social-icon-img {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* Side socail icons */
+.home__social-icon-img {
+  width: 30px;          /* adjust size */
+  height: 30px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* makes dark icons white on dark bg */
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.home__social-icon:hover .home__social-icon-img {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+/* end Socail Icons */
+
 
   .about__container{
     column-gap: 6rem;
@@ -1144,6 +1177,10 @@ transform: scale(1.2);
     gap: 4rem;
   }
 
+  .home__img {
+    width: 420px;
+  }
+
   .offer__container{
     grid-template-columns: repeat(2, 1fr);
     column-gap: 5rem;
@@ -1162,7 +1199,7 @@ transform: scale(1.2);
     padding-right: 6rem;
   }
   .offer__img{
-    width: 450px;
+    width: 500px;
   }
 
   .logos__container{
