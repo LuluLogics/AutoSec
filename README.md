@@ -1,4 +1,4 @@
-AutoSec — Connected Vehicle Intrusion Detection System (IDS)
+# 🚗🔐 AutoSec - Connected Vehicle Intrusion Detection System (IDS)
 
 AutoSec is a final-year project exploring intrusion detection for connected vehicle networks. The system passively monitors CAN bus traffic in a simulated in-vehicle network, detects suspicious activity using signature-based rules and anomaly detection, and streams real-time alerts to a web dashboard for monitoring and analysis.
 
