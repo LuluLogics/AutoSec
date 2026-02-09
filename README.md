@@ -76,19 +76,21 @@ Detailed setup docs will be added as the project matures.
 ⸻
 
 🌐 Live Demo
-	•	Web Dashboard: https://lululogics.netlify.app (update if different)
+	•	Web Dashboard: https://autosec.netlify.app
 	•	Repository: https://github.com/LuluLogics/AutoSec
 
 ⸻
 
 📸 Screenshots & Media
 
-Add screenshots of:
+Screenshots of:
 
+	•	Web dashboard UI
+	<img width="3420" height="1906" alt="image" src="https://github.com/user-attachments/assets/2eb45ff8-fb05-4542-a798-b3feff4e0bfd" />
+
+	•	Architecture diagram
 	•	IDS running in terminal
 	•	CAN traffic / alerts
-	•	Web dashboard UI
-	•	Architecture diagram
 
 ⸻
 
