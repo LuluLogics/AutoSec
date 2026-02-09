@@ -329,7 +329,9 @@ padding-top: 9rem;
   color: var(--white-color);
   font-weight: var(--font-medium);
   pointer-events: none;   /* 👈 THIS is the key line */
-  margin-top: 1.5rem;          
+  /* margin-top: 1.5rem; */
+  margin: 3rem;          
+
 
 }
 
