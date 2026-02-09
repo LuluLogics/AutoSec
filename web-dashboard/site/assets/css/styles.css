@@ -317,8 +317,8 @@ padding-top: 9rem;
   z-index: 888;
   position: relative;
   border: 2px solid hsl(158, 89%, 30%);
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -328,6 +328,9 @@ padding-top: 9rem;
   font-size: var(--small-font-size);
   color: var(--white-color);
   font-weight: var(--font-medium);
+  pointer-events: none;   /* 👈 THIS is the key line */
+  margin-top: 1.5rem;          
+
 }
 
 .home__button::before{
@@ -644,6 +647,7 @@ transform: scale(1.2);
 }
 
 /*=============== FEATURED ===============*/
+/* Detection modules/ IDS components */
 
 .featured__container{
   padding-top: 1rem;
@@ -729,8 +733,18 @@ transform: scale(1.2);
 }
 .featured__price{
   font: var(--h3-font-size);
-  
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
 }
+
+.featured__price-icon{
+  width: 28px;   /* tweak size if needed */
+  height: auto;
+}
+
 .featured__button{
   border: none;
   outline: none;
@@ -1098,6 +1112,8 @@ transform: scale(1.2);
 }
 /* end Socail Icons */
 
+
+/* End Detection modules */
 
   .about__container{
     column-gap: 6rem;
