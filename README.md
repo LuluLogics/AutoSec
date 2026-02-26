@@ -1,54 +1,91 @@
-AutoSec — Demo Runbook (ICSim + Attacks + IDS Bridge)
+# AutoSec — Connected Vehicle Intrusion Detection System (IDS)
 
-A repeatable before vs after demo for AutoSec:
-	•	Demo A (No protection): attacks reach the “car” (ICSim) and the UI becomes unstable.
-	•	Demo B (Protection ON): the IDS bridge acts like a gateway filter; suspicious traffic is blocked before it reaches the “car”.
+**AutoSec** is a virtual CAN-bus security testbed and intrusion detection gateway for connected vehicle environments. It demonstrates how malicious CAN traffic can destabilize a vehicle system **without protection**, and how a lightweight **IDS bridge (gateway filter)** can detect and block suspicious traffic **before it reaches the “car”**.
 
-⸻
+**Live demo UI (Protection Toggle):**  
+👉 https://autosec.netlify.app/
 
-What you need
-	•	Linux VM / Ubuntu with SocketCAN
-	•	can-utils installed (candump, cansend, cangen, cansniffer)
-	•	ICSim built (icsim, controls)
-	•	AutoSec repo in ~/autosEc
-	•	Python venv at ~/autosEc/.venv with python-can
+---
 
-⸻
+## 🚗 What This Project Demonstrates
 
-Quick demo in a nutshell (before vs after)
+A repeatable **before vs after** security demo using ICSim + attack scripts + AutoSec IDS bridge:
 
-Demo A — No protection
-	1.	Run Terminal 1 (bring up buses)
-	2.	Run Terminal 2 (start ICSim)
-	3.	Do not run the IDS bridge
-	4.	Run an attack (Terminal 4) → sim goes crazy
+- **Demo A (No Protection)**  
+  Attacks go directly to the simulated vehicle → UI becomes unstable, CAN traffic spikes.
 
-Demo B — Protection ON
-	1.	Run Terminal 1
-	2.	Run Terminal 2
-	3.	Run Terminal 3 (calibrate + start bridge in protect mode)
-	4.	Run the same attack (Terminal 4) → you should see:
-	•	IDS alerts with action=block
-	•	vcan1 stays cleaner than vcan0
-	•	UI/sim remains more stable
+- **Demo B (Protection ON)**  
+  IDS bridge acts as a gateway filter → suspicious frames are blocked before reaching the vehicle → simulation remains more stable.
 
-⸻
+---
 
-Terminal map (recommended)
+## 🧩 Architecture (High-Level)
 
-Open 5 terminals (Terminal 5 is optional but great for screenshots).
-	•	Terminal 1: bring up vcan0 (attacker side) + vcan1 (protected side)
-	•	Terminal 2: run ICSim + Controls (the “car” lives on vcan1)
-	•	Terminal 3: activate venv + calibrate + run IDS bridge (protect mode)
-	•	Terminal 4: run attacks (against vcan0)
-	•	Terminal 5: observer (candump / cansniffer) to prove the difference
+AutoSec is designed as a **gateway-style IDS** placed between an attacker-facing CAN interface and the protected in-vehicle CAN network:
 
-⸻
+- **vcan0 (Untrusted / Attacker Side)**  
+  Receives injected, spoofed, and flood traffic from attack scripts.
+- **IDS Bridge (Python + python-can)**  
+  Observes frames, applies detection rules (rate/jitter, unknown IDs, misuse), and decides **allow vs block**.
+- **vcan1 (Protected / Vehicle Side)**  
+  Only forwards traffic deemed legitimate to the simulated vehicle (ICSim).
+- **ICSim (Vehicle Simulator)**  
+  Acts as the “car” receiving CAN frames.
+- **Web UI (AutoSec Dashboard)**  
+  Demonstrates protection toggling and system status: https://autosec.netlify.app/
 
-Step-by-step runbook
+---
 
-Terminal 1 — Create and enable both virtual CAN buses
+## 🛠️ What You Need
 
+- Linux VM / Ubuntu with **SocketCAN**
+- `can-utils` installed (`candump`, `cansend`, `cangen`, `cansniffer`)
+- **ICSim** built (`icsim`, `controls`)
+- AutoSec repository in `~/autosEc`
+- Python virtual environment at `~/autosEc/.venv` with `python-can`
+
+---
+
+## ⚡ Quick Demo (Before vs After)
+
+### Demo A — No Protection
+
+1. Terminal 1: Bring up buses  
+2. Terminal 2: Start ICSim  
+3. **Do not** run the IDS bridge  
+4. Terminal 4: Run an attack  
+   - **Result:** simulator becomes unstable, CAN traffic spikes
+
+### Demo B — Protection ON
+
+1. Terminal 1: Bring up buses  
+2. Terminal 2: Start ICSim  
+3. Terminal 3: Calibrate + start IDS bridge in protect mode  
+4. Terminal 4: Run the same attack  
+   - **Result:**  
+     - IDS alerts with `action=block`  
+     - `vcan1` stays cleaner than `vcan0`  
+     - Simulator/UI remains more stable
+
+---
+
+## 🖥️ Terminal Map (Recommended)
+
+Open **5 terminals** (Terminal 5 optional, great for screenshots):
+
+- **Terminal 1:** Bring up `vcan0` (attacker) + `vcan1` (protected)
+- **Terminal 2:** Run ICSim + Controls (the “car” on `vcan1`)
+- **Terminal 3:** Activate venv + calibrate + run IDS bridge (protect mode)
+- **Terminal 4:** Run attacks (against `vcan0`)
+- **Terminal 5:** Observer (`candump` / `cansniffer`) to prove the difference
+
+---
+
+## 📋 Step-by-Step Runbook
+
+### Terminal 1 — Create and Enable Virtual CAN Buses
+
+~~~bash
 sudo modprobe can can_raw vcan
 
 # Clean up from previous runs
@@ -66,145 +103,189 @@ sudo ip link set up vcan1
 # Verify
 ip link show vcan0
 ip link show vcan1
+~~~
 
-✅ Expected: both show UP and link/can.
+✅ **Expected:** both show `UP` and `link/can`.
 
-⸻
+---
 
-Terminal 2 — Start the car simulation (ICSim)
+### Terminal 2 — Start the Car Simulation (ICSim)
 
-Important: In the “protected” architecture, the car runs on vcan1.
+**Important:** In the protected architecture, the car runs on `vcan1`.
 
-From anywhere:
-
+~~~bash
 start_sim
+~~~
 
-✅ Expected: the IC Simulator + CANBus Control Panel windows appear.
+✅ **Expected:** IC Simulator + CANBus Control Panel windows appear.
 
-⸻
+---
 
-Terminal 3 — Activate venv, calibrate baseline, start protection bridge
+### Terminal 3 — Activate venv, Calibrate Baseline, Start Protection Bridge
 
-1) Activate Python environment
+#### 1) Activate Python environment
 
+~~~bash
 source ~/autosEc/.venv/bin/activate
+~~~
 
-2) Baseline calibration (learn normal IDs + timing)
+#### 2) Baseline calibration (learn normal IDs + timing)
 
 Let ICSim run normally for ~60 seconds, then:
 
+~~~bash
 python3 ~/autosEc/code/ids/bridge.py calibrate --src vcan1 --seconds 60
+~~~
 
-✅ Expected: calib.json written with ~36 IDs (ICSim baseline).
+✅ **Expected:** `calib.json` written with ~36 baseline IDs.
 
-3) Start the “gateway” in protection mode (leave running)
+#### 3) Start the gateway in protection mode (leave running)
 
+~~~bash
 python3 ~/autosEc/code/ids/bridge.py bridge --mode protect --src vcan0 --dst vcan1
+~~~
 
-✅ Leave this running. This is your before-it-hits-the-car filter.
+✅ Leave this running — this is your **before-it-hits-the-car** filter.
 
-⸻
+---
 
-Terminal 4 — Run attacks (attacker side)
+### Terminal 4 — Run Attacks (Attacker Side)
 
-Attacks always target vcan0.
+Attacks always target `vcan0`.
 
-Flood / DoS
+#### Flood / DoS
 
+~~~bash
 ~/autosEc/code/attacks/flood.sh
+~~~
 
-Stop with:
+Stop with: **CTRL + C**
 
-CTRL + C
+#### Spoof (example)
 
-Spoof (example)
-
+~~~bash
 ~/autosEc/code/attacks/spoof_speed_244.sh
+~~~
 
-Stop with:
+Stop with: **CTRL + C**
 
-CTRL + C
+---
 
+### Terminal 5 (Optional) — Observer / Proof Terminal
 
-⸻
+#### Live view (changes highlighted)
 
-Terminal 5 (Optional) — Observer / proof terminal
-
-This terminal is purely for screenshots and proof.
-
-Live view (changes highlighted)
-
+~~~bash
 sudo cansniffer -c vcan1
+~~~
 
-Quick snapshot comparison
+#### Quick snapshot comparison
 
+~~~bash
 candump -n 30 vcan0
 candump -n 30 vcan1
+~~~
 
-✅ In protect mode, vcan0 will look noisy during attacks, while vcan1 stays closer to baseline.
+✅ In protect mode, `vcan0` will look noisy during attacks, while `vcan1` stays closer to baseline.
 
-⸻
+---
 
-Demo script (what to say + what to do)
+## 🎤 Demo Script (What to Say + What to Do)
 
-Demo A — No protection
-	1.	Terminal 1: bring up buses
-	2.	Terminal 2: start sim
-	3.	Terminal 4: run flood.sh
-	4.	Point out: UI becomes unstable / traffic spikes
+### Demo A — No Protection
 
-Demo B — Protection ON
-	1.	Terminal 3: calibrate
-	2.	Terminal 3: start bridge in --mode protect
-	3.	Terminal 4: run the same flood.sh
-	4.	Point out:
-	•	Terminal 3 prints alerts with action=block
-	•	vcan1 stays cleaner than vcan0
-	•	sim remains more stable
+1. Terminal 1: Bring up buses  
+2. Terminal 2: Start sim  
+3. Terminal 4: Run `flood.sh`  
+4. Point out: UI becomes unstable, traffic spikes  
 
-⸻
+### Demo B — Protection ON
 
-Common issues (fast fixes)
+1. Terminal 3: Calibrate  
+2. Terminal 3: Start bridge in `--mode protect`  
+3. Terminal 4: Run the same `flood.sh`  
+4. Point out:  
+   - Terminal 3 prints alerts with `action=block`  
+   - `vcan1` stays cleaner than `vcan0`  
+   - Simulator remains more stable  
 
-“vcan0/vcan1: No such device”
+---
 
-You forgot Terminal 1. Re-run Terminal 1 setup commands.
+## 🧯 Common Issues (Fast Fixes)
 
-start_sim shows “dev duplicate / vcan1 is garbage”
+### `vcan0/vcan1: No such device`
 
-That means vcan1 already exists. It’s usually safe to ignore, but the clean fix is:
+You forgot Terminal 1. Re-run the setup commands.
 
+### `start_sim` shows “dev duplicate / vcan1 is garbage”
+
+`vcan1` already exists. Clean fix:
+
+~~~bash
 sudo ip link del vcan0 2>/dev/null || true
 sudo ip link del vcan1 2>/dev/null || true
+~~~
 
-…and then recreate them (Terminal 1).
+Then recreate buses.
 
-bridge command says only {calibrate, bridge} exists
+### `bridge` command only shows `{calibrate, bridge}`
 
-That’s correct — use:
+That’s correct. Use:
 
+~~~bash
 python3 ~/autosEc/code/ids/bridge.py bridge --mode protect --src vcan0 --dst vcan1
+~~~
 
-(not protect as a separate subcommand).
+---
 
-⸻
+## 🧹 Clean Shutdown (End of Demo)
 
-Clean shutdown (end of demo)
-	1.	Stop attack scripts (CTRL + C in Terminal 4)
-	2.	Stop bridge (CTRL + C in Terminal 3)
-	3.	Stop simulation:
+1. Stop attack scripts (**CTRL + C** in Terminal 4)  
+2. Stop bridge (**CTRL + C** in Terminal 3)  
+3. Stop simulation:
 
+~~~bash
 stop_sim
+~~~
 
-	4.	Optional: remove buses
+4. Optional: remove buses
 
+~~~bash
 sudo ip link del vcan0 2>/dev/null || true
 sudo ip link del vcan1 2>/dev/null || true
+~~~
 
+---
 
-⸻
+## 📸 Screenshots (For Reports / Supervisor Updates)
 
-What to screenshot for reports / supervisor updates
-	•	ICSim + Control Panel windows visible
-	•	Terminal 3 showing [ALERT] ... action=block
-	•	Terminal 5 showing candump vcan0 noisy vs candump vcan1 calmer
+Capture:
+- ICSim + Control Panel windows visible
+- Terminal 3 showing `[ALERT] ... action=block`
+- Terminal 5 showing:
+  - `candump vcan0` noisy
+  - `candump vcan1` calmer
+
+Embed screenshots:
+
+~~~markdown
+![ICSim Running](screenshots/icsim_running.png)
+![IDS Alerts](screenshots/ids_alerts.png)
+![vcan Comparison](screenshots/vcan_comparison.png)
+~~~
+
+---
+
+## 🌐 Web Dashboard (Protection Toggle)
+
+The AutoSec web interface demonstrates enabling/disabling protection and visualising system behaviour:
+
+👉 https://autosec.netlify.app/
+
+Use this during demos to conceptually show **Protection OFF vs Protection ON** alongside the terminal-based evidence.
+
+---
+
+## 📜 License
+
+This project is for educational and research purposes as part of a final-year project on connected vehicle cybersecurity.
