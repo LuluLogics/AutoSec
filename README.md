@@ -209,6 +209,8 @@ candump -n 30 vcan1
    - `vcan1` stays cleaner than `vcan0`  
    - Simulator remains more stable  
 
+<img width="3840" height="2486" alt="image" src="https://github.com/user-attachments/assets/69ca29a6-4975-4e56-bf06-28f6cfc9f1d0" />
+
 ---
 
 ## 🧯 Common Issues (Fast Fixes)
