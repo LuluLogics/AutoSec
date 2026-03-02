@@ -133,13 +133,19 @@ source ~/autosEc/.venv/bin/activate
 
 Let ICSim run normally for ~60 seconds, then:
 
+### 3) Run uvicorn to start the API
+
+~~~bash
+uvicorn controller:app --app-dir ~/autosEc/code/dashboard/controller --host 0.0.0.0 --port 8000
+~~~
+
 ~~~bash
 python3 ~/autosEc/code/ids/bridge.py calibrate --src vcan1 --seconds 60
 ~~~
 
 ✅ **Expected:** `calib.json` written with ~36 baseline IDs.
 
-#### 3) Start the gateway in protection mode (leave running)
+#### 4) Start the gateway in protection mode (leave running)
 
 ~~~bash
 python3 ~/autosEc/code/ids/bridge.py bridge --mode protect --src vcan0 --dst vcan1
