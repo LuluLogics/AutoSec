@@ -160,6 +160,7 @@ python3 ~/autosEc/code/ids/bridge.py bridge --mode protect --src vcan0 --dst vca
 #### Live view (changes highlighted)
 
 ~~~bash
+sudo cansniffer -c vcan0
 sudo cansniffer -c vcan1
 ~~~
 
