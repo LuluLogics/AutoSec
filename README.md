@@ -155,7 +155,26 @@ python3 ~/autosEc/code/ids/bridge.py bridge --mode protect --src vcan0 --dst vca
 
 ---
 
-### Terminal 4 — Run Attacks (Attacker Side)
+### Terminal 4 (Optional) — Observer / Proof Terminal
+
+#### Live view (changes highlighted)
+
+~~~bash
+sudo cansniffer -c vcan1
+~~~
+
+#### Quick snapshot comparison
+
+~~~bash
+candump -n 30 vcan0
+candump -n 30 vcan1
+~~~
+
+✅ In protect mode, `vcan0` will look noisy during attacks, while `vcan1` stays closer to baseline.
+
+---
+
+### Terminal 5 — Run Attacks (Attacker Side)
 
 Attacks always target `vcan0`.
 
@@ -174,25 +193,6 @@ Stop with: **CTRL + C**
 ~~~
 
 Stop with: **CTRL + C**
-
----
-
-### Terminal 5 (Optional) — Observer / Proof Terminal
-
-#### Live view (changes highlighted)
-
-~~~bash
-sudo cansniffer -c vcan1
-~~~
-
-#### Quick snapshot comparison
-
-~~~bash
-candump -n 30 vcan0
-candump -n 30 vcan1
-~~~
-
-✅ In protect mode, `vcan0` will look noisy during attacks, while `vcan1` stays closer to baseline.
 
 ---
 
